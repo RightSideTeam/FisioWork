@@ -11,7 +11,9 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 
+import com.google.firebase.database.DatabaseReference;
 import com.rightside.fisiowork.R;
+import com.rightside.fisiowork.helper.ConfiguracaoFirebase;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -21,6 +23,16 @@ public class DateActivity extends AppCompatActivity implements View.OnClickListe
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
     private ViewHolder mViewHolder = new ViewHolder();
 
+
+    DatabaseReference ref = ConfiguracaoFirebase.getFirebase();
+
+
+    DatabaseReference mDatabaseDias = ref.child("dias-consultas");
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +40,6 @@ public class DateActivity extends AppCompatActivity implements View.OnClickListe
 
         this.mViewHolder.mButtonDate = (Button) this.findViewById(R.id.button_date);
         this.mViewHolder.mButtonGetTime = (Button) this.findViewById(R.id.button_get_time);
-        this.mViewHolder.mButtonSetTime = (Button) this.findViewById(R.id.button_set_time);
         this.mViewHolder.mTimePicker = (TimePicker) this.findViewById(R.id.time_picker);
 
         // Eventos
@@ -42,6 +53,9 @@ public class DateActivity extends AppCompatActivity implements View.OnClickListe
 
         if (id == R.id.button_date) {
             this.showTimePickerDialog();
+//            String dia = String.valueOf(this.mViewHolder.mTimePicker);
+//            Toast.makeText(this,dia,Toast.LENGTH_LONG).show();
+
         } else if (id == R.id.button_get_time) {
 
             if (Build.VERSION.SDK_INT >= 23) {
@@ -56,23 +70,13 @@ public class DateActivity extends AppCompatActivity implements View.OnClickListe
 
                 String hour = String.valueOf(this.mViewHolder.mTimePicker.getCurrentHour());
                 String minute = String.valueOf(this.mViewHolder.mTimePicker.getCurrentMinute());
+                //String horario = hour +" : "+ minute;
+//                String horarioID = mDatabaseDias.push().getKey();
+//                mDatabaseDias.child(diaID);
+//                horario.setValue(hora);
 
                 String value = hour + ":" + minute;
                 Toast.makeText(this, value, Toast.LENGTH_LONG).show();
-
-            }
-
-        } else if (id == R.id.button_set_time) {
-
-            if (Build.VERSION.SDK_INT >= 23) {
-
-                this.mViewHolder.mTimePicker.setHour(20);
-                this.mViewHolder.mTimePicker.setMinute(15);
-
-            } else {
-
-                this.mViewHolder.mTimePicker.setCurrentHour(20);
-                this.mViewHolder.mTimePicker.setCurrentMinute(15);
 
             }
 
@@ -86,7 +90,18 @@ public class DateActivity extends AppCompatActivity implements View.OnClickListe
         calendar.set(year, month, dayOfMonth);
 
         String date = SIMPLE_DATE_FORMAT.format(calendar.getTime());
+        Toast.makeText(this,date,Toast.LENGTH_LONG).show();
+
+
+        String diaID = ref.push().getKey();
+        mDatabaseDias = ref.child(diaID);
+        mDatabaseDias.setValue(date);
+
+
+
+
         this.mViewHolder.mButtonDate.setText(date);
+
 
     }
 
@@ -114,7 +129,6 @@ public class DateActivity extends AppCompatActivity implements View.OnClickListe
     private void setListeners() {
         this.mViewHolder.mButtonDate.setOnClickListener(this);
         this.mViewHolder.mButtonGetTime.setOnClickListener(this);
-        this.mViewHolder.mButtonSetTime.setOnClickListener(this);
     }
 
     /**
@@ -123,7 +137,6 @@ public class DateActivity extends AppCompatActivity implements View.OnClickListe
     private static class ViewHolder {
         private Button mButtonDate;
         private Button mButtonGetTime;
-        private Button mButtonSetTime;
         private TimePicker mTimePicker;
     }
 
